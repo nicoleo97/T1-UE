@@ -1,0 +1,30 @@
+name: Convert Notebook to PDF
+
+on: 
+  push:
+    branches:
+      - main  # Starte den Workflow, wenn auf main gepusht wird
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Installiere Abhängigkeiten
+        run: |
+          pip install jupyter nbconvert
+
+      - name: Notebook in PDF umwandeln
+        run: |
+          jupyter nbconvert --to pdf notebooks/*.ipynb --output-dir=exports/
+
+      - name: PDF ins Repo committen
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add exports/
+          git commit -m "Automatisch generiertes PDF"
+          git push
