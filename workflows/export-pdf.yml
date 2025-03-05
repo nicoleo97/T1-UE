@@ -1,4 +1,4 @@
-name: Convert Notebook to PDF
+name: Convert Notebooks to PDF
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  convert_to_pdf:
+  convert_notebooks:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,13 +23,16 @@ jobs:
         pip install -r requirements.txt
         sudo apt-get install texlive-xetex texlive-fonts-recommended texlive-latex-extra
 
-    - name: Convert notebook to PDF
+    - name: Convert all notebooks to PDF
       run: |
-        jupyter nbconvert --to pdf --output exports/uebung1.pdf notebooks/uebung1.ipynb
+        mkdir -p exports
+        for notebook in $(find . -name "*.ipynb"); do
+          filename=$(basename "$notebook" .ipynb)
+          jupyter nbconvert --to pdf --output "exports/${filename}.pdf" "$notebook"
+        done
 
-    - name: Commit and push the PDF
+    - name: Commit and push the PDFs
       run: |
-        git add exports/uebung1.pdf
-        git commit -m "Updated PDF export"
+        git add exports/*.pdf
+        git commit -m "Updated PDF exports"
         git push
-
